@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Procrastination Trap</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- === 顶部导航 === -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <span class="brand-icon">⏳</span>
+      <span class="brand-text">Procrastination Trap</span>
+    </div>
+    <div class="topbar-nav">
+      <button class="nav-btn active" data-page="setup">⚙️ 设置锁机</button>
+      <button class="nav-btn" data-page="history">📊 历史记录</button>
+      <button class="nav-btn" data-page="about">ℹ️ 关于</button>
+    </div>
+  </header>
+
+  <!-- === 主内容区 === -->
+  <main class="main-content">
+
+    <!-- 设置锁机页面 -->
+    <section class="page active" id="page-setup">
+      <div class="setup-grid">
+
+        <!-- 解锁条件 -->
+        <div class="card">
+          <h2 class="card-title">🔑 解锁条件</h2>
+
+          <div class="cond-tabs">
+            <button class="cond-tab active" data-cond="command">命令行</button>
+            <button class="cond-tab" data-cond="file">文件内容</button>
+            <button class="cond-tab" data-cond="web">网页停留</button>
+            <button class="cond-tab" data-cond="combined">组合条件</button>
+          </div>
+
+          <!-- 命令行条件 -->
+          <div class="cond-panel active" id="cond-command">
+            <label>执行命令</label>
+            <input type="text" id="condCommand" placeholder="例如: pytest tests/" value="echo Hello World">
+            <label>工作目录（可选）</label>
+            <input type="text" id="condWorkDir" placeholder="例如: C:\myproject">
+            <label>期望退出码</label>
+            <input type="number" id="condExitCode" value="0" min="0" max="255">
+            <button class="btn btn-outline" id="btnTestCommand">🧪 测试命令</button>
+            <div class="test-result" id="testCommandResult"></div>
+          </div>
+
+          <!-- 文件条件 -->
+          <div class="cond-panel" id="cond-file">
+            <label>文件路径</label>
+            <input type="text" id="condFilePath" placeholder="例如: C:\work\report.md">
+            <label>最少字数</label>
+            <input type="number" id="condMinWords" value="500" min="1">
+            <button class="btn btn-outline" id="btnTestFile">🧪 检查文件</button>
+            <div class="test-result" id="testFileResult"></div>
+          </div>
+
+          <!-- 网页条件 -->
+          <div class="cond-panel" id="cond-web">
+            <label>目标网址</label>
+            <input type="text" id="condWebUrl" placeholder="例如: https://example.com">
+            <label>最少停留时间（分钟）</label>
+            <input type="number" id="condWebMinutes" value="30" min="1">
+            <p class="hint">⚠️ 网页检测需要浏览器扩展配合，MVP阶段暂不支持自动检测</p>
+          </div>
+
+          <!-- 组合条件 -->
+          <div class="cond-panel" id="cond-combined">
+            <label>组合方式</label>
+            <select id="condCombineOp">
+              <option value="AND">全部满足 (AND)</option>
+              <option value="OR">任一满足 (OR)</option>
+            </select>
+            <p class="hint">组合条件：同时设置上述多个条件，按组合方式判断</p>
+          </div>
+        </div>
+
+        <!-- 黑名单 -->
+        <div class="card">
+          <h2 class="card-title">🚫 进程黑名单</h2>
+          <p class="hint">锁机期间会自动结束以下进程（每2秒检测一次）</p>
+          <div class="tag-list" id="processTagList">
+            <span class="tag">steam.exe <button class="tag-remove">×</button></span>
+            <span class="tag">WeChat.exe <button class="tag-remove">×</button></span>
+            <span class="tag">Douyin.exe <button class="tag-remove">×</button></span>
+          </div>
+          <div class="add-row">
+            <input type="text" id="newProcess" placeholder="输入进程名 (如 steam.exe)" list="processSuggestions">
+            <datalist id="processSuggestions"></datalist>
+            <button class="btn btn-sm" id="btnAddProcess">+ 添加</button>
+          </div>
+
+          <h2 class="card-title" style="margin-top:20px;">🌐 网站黑名单</h2>
+          <p class="hint">锁机期间修改 hosts 文件屏蔽以下网站</p>
+          <div class="tag-list" id="siteTagList">
+            <span class="tag">bilibili.com <button class="tag-remove">×</button></span>
+            <span class="tag">douyin.com <button class="tag-remove">×</button></span>
+            <span class="tag">zhihu.com <button class="tag-remove">×</button></span>
+            <span class="tag">weibo.com <button class="tag-remove">×</button></span>
+          </div>
+          <div class="add-row">
+            <input type="text" id="newSite" placeholder="输入域名 (如 example.com)">
+            <button class="btn btn-sm" id="btnAddSite">+ 添加</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 开始按钮 -->
+      <div class="action-bar">
+        <button class="btn btn-primary btn-large" id="btnStartLock">🔒 开始锁机</button>
+        <span class="status-badge" id="setupStatus">就绪</span>
+      </div>
+    </section>
+
+    <!-- 历史记录页面 -->
+    <section class="page" id="page-history">
+      <div class="card">
+        <h2 class="card-title">📊 锁机历史</h2>
+        <div id="historyList">
+          <p class="empty-state">暂无锁机记录，开始你的第一次锁机吧！</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 关于页面 -->
+    <section class="page" id="page-about">
+      <div class="card">
+        <h2 class="card-title">ℹ️ 关于 Procrastination Trap</h2>
+        <div class="about-content">
+          <p><strong>Procrastination Trap</strong>（拖延症"手动挡"锁机）</p>
+          <p>一款你自己主动上锁、必须完成自定义任务才能解锁的 Windows 效率工具。</p>
+          <br>
+          <p><strong>核心理念：</strong></p>
+          <ul>
+            <li>用你的意志力做"锁"</li>
+            <li>用你的行动做"钥匙"</li>
+            <li>不靠时间，靠成果</li>
+          </ul>
+          <br>
+          <p><strong>版本：</strong> 1.0.0 MVP</p>
+          <p><strong>技术栈：</strong> Electron + Node.js</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 解锁成功页面 -->
+    <section class="page" id="page-unlocked">
+      <div class="unlock-celebration">
+        <div class="celebration-icon">🎉</div>
+        <h1>恭喜解锁！</h1>
+        <div class="unlock-stats">
+          <div class="unlock-stat">
+            <div class="unlock-stat-num" id="unlockElapsed">--</div>
+            <div class="unlock-stat-label">锁机时长</div>
+          </div>
+          <div class="unlock-stat">
+            <div class="unlock-stat-num" id="unlockKills">0</div>
+            <div class="unlock-stat-label">拦截干扰次数</div>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-large" id="btnBackToSetup">回到首页</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast 通知 -->
+  <div class="toast" id="toast"></div>
+
+  <!-- 条件已满足弹窗 -->
+  <div class="modal-overlay" id="modalConditionMet">
+    <div class="modal">
+      <div class="modal-icon">✅</div>
+      <h2>条件已满足！</h2>
+      <p id="modalConditionMsg">所有解锁条件已经达成</p>
+      <button class="btn btn-primary" id="btnConfirmUnlock">🔓 解锁</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

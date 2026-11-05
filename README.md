@@ -1,3 +1,5 @@
+**简体中文** | [English](README.en.md)
+
 # Procrastination Trap
 
 > 一款你自己主动上锁、必须完成自定义任务才能解锁的 Windows 效率工具。
